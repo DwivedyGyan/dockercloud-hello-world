@@ -44,7 +44,6 @@ node {
       extensions: [],
       submoduleCfg: [],
       userRemoteConfigs: [[
-        credentialsId: 'b8528912-eec0-4120-8304-5ea090f3aece', // May need to change credentialsID for github
         url: 'https://github.com/DwivedyGyan/scalable_webapp_with_elb.git'
       ]]
     ])
