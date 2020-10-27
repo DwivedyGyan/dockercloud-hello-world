@@ -3,6 +3,7 @@ hello-world
 
 
 Sample Code for a scalable and highly available webapp on gcp. The code satisfies below criteria: 
+
 	$ Simple yet resilient application, which responds to HTTP requests.
 	$ The application allows for individual node failures, without impacting availability.
 	$ The application is able to scale based on load.
@@ -21,7 +22,7 @@ Build and run locally:
 	
 ## Running with Jenkins
 
-$ Install jenkins with docker pipeline plugin. 
-$ Edit credentialsID in jenkins file
-$ Add GOOGLE_CLOUD_KEYFILE_JSON and GOOGLE_PROJECT env variables in file /var/lib/jenkins/gcpenv files for terraform
-$ configure job and run. 
+	$ Install jenkins with docker pipeline plugin. 
+	$ Edit credentialsID in jenkins file
+	$ Add GOOGLE_CLOUD_KEYFILE_JSON and GOOGLE_PROJECT env variables in file /var/lib/jenkins/gcpenv files for terraform
+	$ configure job and run. 
