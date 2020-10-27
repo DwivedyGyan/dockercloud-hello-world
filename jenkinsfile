@@ -1,0 +1,62 @@
+node {
+  def webapp
+
+  stage('Clone repository') {
+    checkout scm
+  }
+
+  stage('Build image') {
+    webapp = docker.build("gyanendraveeru/docker-first-test")
+  }
+  stage('Test image') {
+    try {
+      webapp.inside {
+        echo "Tests passed"
+      }
+    }
+    catch (err) {
+      currentBuild.result = 'UNSTABLE'
+      error("Tests Failed. Hence marking build as UNSTABLE.")
+    }
+
+  }
+
+  stage('Push image') {
+    echo "Trying to Push Docker Build to DockerHub"
+    try {
+      docker.withRegistry('https://registry.hub.docker.com', '33a94464-5fe9-41b6-82be-2fd1d9333258') { // May need to change credentialsID for Docker registry
+        webapp.push("${env.BUILD_NUMBER}")
+        webapp.push("latest")
+      }
+    }
+    catch (err) {
+      echo (err)
+      currentBuild.result = 'FAILURE'
+      error("Unable to push image to docker registry. Hence marking as FAILURE")
+    }
+  }
+
+  stage('checkout terraform') {
+    checkout([
+      $class: 'GitSCM',
+      branches: [[name: '*/master']],
+      doGenerateSubmoduleConfigurations: false,
+      extensions: [],
+      submoduleCfg: [],
+      userRemoteConfigs: [[
+        credentialsId: 'b8528912-eec0-4120-8304-5ea090f3aece', // May need to change credentialsID for github
+        url: 'https://github.com/DwivedyGyan/scalable_webapp_with_elb.git'
+      ]]
+    ])
+  }
+  stage('deployment') {
+    sh label: '',
+      script: """
+        export `cat ~/gcpenv`
+        cd "${WORKSPACE}/testenv"
+        terraform init -no-color -input=false
+        terraform plan -out=tfplan -input=false -no-color -state=/var/lib/jenkins/terraform.tfstate -var "docker_tag=${env.BUILD_NUMBER}"
+        terraform apply -input=false -no-color -state=/var/lib/jenkins/terraform.tfstate tfplan
+      """
+  }
+}
